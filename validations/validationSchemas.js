@@ -64,9 +64,34 @@ const resendOTPSchema = Joi.object({
         })
 });
 
+const forgotPasswordSchema = Joi.object({
+    email: Joi.string().email().required()
+        .messages({
+            'string.email': 'Please provide a valid email address',
+            'string.empty': 'Email cannot be empty',
+            'any.required': 'Email is required'
+        })
+});
+
+const resetPasswordSchema = Joi.object({
+    token: Joi.string().required()
+        .messages({
+            'string.empty': 'Token cannot be empty',
+            'any.required': 'Token is required'
+        }),
+    newPassword: Joi.string().min(6).required()
+        .messages({
+            'string.min': 'New password must be at least {#limit} characters long',
+            'string.empty': 'New password cannot be empty',
+            'any.required': 'New password is required'
+        })
+});
+
 module.exports = {
     signupSchema,
     verifySchema,
     loginSchema,
-    resendOTPSchema
+    resendOTPSchema,
+    forgotPasswordSchema,
+    resetPasswordSchema
 };

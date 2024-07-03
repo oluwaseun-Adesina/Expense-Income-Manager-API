@@ -42,6 +42,14 @@ const userSchema = new mongoose.Schema({
         enum: ['user', 'admin'], // Add more roles as needed
         default: 'user'
     },
+    resetPasswordToken: {
+        type: String,
+        required: false
+    },
+    resetPasswordExpires: {
+        type: Date,
+        required: false
+    },
     createdAt: {
         type: Date,
         default: Date.now
@@ -92,6 +100,13 @@ userSchema.methods.verifyOTP = function(enteredOTP) {
     this.otpExpires = undefined;
     return true;
 };
+
+// Method to generate and set password reset token
+userSchema.methods.generatePasswordReset = function() {
+    this.resetPasswordToken = crypto.randomBytes(20).toString('hex');
+    this.resetPasswordExpires = Date.now() + 3600000; // Token valid for 1 hour
+};
+
 
 const User = mongoose.model('User', userSchema);
 

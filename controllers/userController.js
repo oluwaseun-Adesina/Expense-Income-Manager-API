@@ -147,6 +147,67 @@ const userController = {
 
     async getLogout(req, res) {
         res.status(200).json({ token: null, message: 'Logged out successfully' });
+    },
+
+    async forgotPassword(req, res) {
+        const { email } = req.body;
+
+        try {
+            const user = await User.findOne({ email });
+
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+
+            user.generatePasswordReset();
+            await user.save();
+
+            const resetUrl = `http://localhost:3000/reset-password/${user.resetPasswordToken}`;
+
+            const mailOptions = {
+                from: "Oluwaseunadesina8@gmail.com",
+                to: email,
+                subject: "Password Reset",
+                text: `You are receiving this because you (or someone else) have requested the reset of the password for your account. Please click on the following link, or paste this into your browser to complete the process: ${resetUrl}`
+            };
+
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    return res.status(500).json({ message: error.message });
+                } else {
+                    return res.status(200).json({ message: 'Password reset link sent to your email' });
+                }
+            });
+
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    },
+
+    async resetPassword(req, res) {
+        const { token, newPassword } = req.body;
+
+        try {
+            const user = await User.findOne({
+                resetPasswordToken: token,
+                resetPasswordExpires: { $gt: Date.now() }
+            });
+
+            if (!user) {
+                return res.status(400).json({ message: 'Invalid or expired token' });
+            }
+
+            user.password = newPassword;
+            user.resetPasswordToken = undefined;
+            user.resetPasswordExpires = undefined;
+
+            await user.save();
+
+            res.status(200).json({ message: 'Password has been reset' });
+
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
     }
 };
 

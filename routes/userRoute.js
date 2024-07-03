@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
-const { signupSchema, verifySchema, loginSchema, resendOTPSchema } = require('../validations/validationSchemas');
+const { signupSchema, verifySchema, loginSchema, resendOTPSchema, forgotPasswordSchema, resetPasswordSchema } = require('../validations/validationSchemas');
 const {authenticateJWT, authorizeRole} = require('../middlewares/auth');
 
 // Middleware for validating request bodies using Joi schemas
@@ -19,6 +19,8 @@ router.post('/resend-otp', validate(resendOTPSchema), userController.resendOTP);
 router.post('/login', validate(loginSchema), userController.userLogin);
 router.get('/home', authenticateJWT, userController.getHome);
 router.post('/logout', authenticateJWT, userController.getLogout);
+router.post('/forgot-password', validate(forgotPasswordSchema), userController.forgotPassword);
+router.post('/reset-password', validate(resetPasswordSchema), userController.resetPassword);
 
 // Example of a protected route that only admins can access
 router.get('/admin', authenticateJWT, authorizeRole(['admin']), (req, res) => {
