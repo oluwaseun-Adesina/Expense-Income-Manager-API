@@ -100,7 +100,7 @@ const expenseSchema = Joi.object({
         'string.empty': 'Description cannot be empty',
         'any.required': 'Description is required'
     }),
-    category: Joi.string().required().messages({
+    category: Joi.string().optional().messages({
         'string.empty': 'Category cannot be empty',
         'any.required': 'Category is required'
     })

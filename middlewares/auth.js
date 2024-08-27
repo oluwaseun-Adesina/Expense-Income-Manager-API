@@ -11,7 +11,7 @@ const authenticateJWT = (req, res, next) => {
         req.user = decoded;
         next();
     } catch (err) {
-        res.status(401).json({ message: 'Invalid token!' });
+        res.status(401).json({ message: 'Please Login or Signup to Proceed!' });
     }
 };
 

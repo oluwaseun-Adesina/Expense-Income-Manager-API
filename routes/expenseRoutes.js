@@ -15,6 +15,7 @@ const validate = (schema) => (req, res, next) => {
 
 router.post('/', authenticateJWT, validate(expenseSchema), expenseController.createExpense);
 router.get('/', authenticateJWT, expenseController.getExpenses);
+router.get('/:id', authenticateJWT, expenseController.getSingleExpense);
 router.put('/:id', authenticateJWT, validate(expenseSchema), expenseController.updateExpense);
 router.delete('/:id', authenticateJWT, expenseController.deleteExpense);
 
