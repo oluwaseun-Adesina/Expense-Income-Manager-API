@@ -106,17 +106,6 @@ const expenseSchema = Joi.object({
     })
 }).options({ allowUnknown: true });
 
-const categorySchema = Joi.object({
-    name: Joi.string().required().messages({
-        'string.empty': 'Name cannot be empty',
-        'any.required': 'Name is required'
-    }),
-    type: Joi.string().valid('income', 'expense').required().messages({
-        'string.empty': 'Type cannot be empty',
-        'any.required': 'Type is required',
-        'any.only': 'Type must be either "income" or "expense"'
-    })
-}).options({ allowUnknown: true });
 
 module.exports = {
     signupSchema,
@@ -126,6 +115,5 @@ module.exports = {
     forgotPasswordSchema,
     resetPasswordSchema,
     incomeSchema,
-    expenseSchema,
-    categorySchema
+    expenseSchema
 };

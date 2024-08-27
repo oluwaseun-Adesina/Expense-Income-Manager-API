@@ -25,8 +25,8 @@ const expenseSchema = new mongoose.Schema({
         default: Date.now
     },
     category: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Category',
+        type: String,
+        enum: ['salary', 'freelance', 'dividends', 'investments','rental-income','gifts','other-income'],
         required: true
     },
     recurring: {

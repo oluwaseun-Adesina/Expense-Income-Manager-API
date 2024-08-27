@@ -20,8 +20,8 @@ const incomeSchema = new mongoose.Schema({
         default: Date.now
     },
     category:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Category',
+        type: String,
+        enum: ['food','transportation','housing','utilities','entertainment','healthcare','insurance','savings','debt-repayment','miscellaneous'],
         required: true
     },
     recurring:{

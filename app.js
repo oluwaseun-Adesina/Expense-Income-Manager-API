@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 3000
 const userRoutes = require('./routes/userRoutes');
 const incomeRoutes = require('./routes/incomeRoutes');
 const expenseRoutes = require('./routes/expenseRoutes');
-const categoryRoutes = require('./routes/categoryRoutes');
+// const categoryRoutes = require('./routes/categoryRoutes');
 const handleRecurrence = require('./utils/recurrenceHandler');
 
 // const {connectRedis} = require('./config/redis')
@@ -51,7 +51,7 @@ app.use(session({
 app.use('/api/users', userRoutes);
 app.use('/api/incomes', incomeRoutes);
 app.use('/api/expenses', expenseRoutes);
-app.use('/api/categories', categoryRoutes);
+// app.use('/api/categories', categoryRoutes);
 
 app.use((req, res) => {
     res.status(404).json({message: "Please Login"})

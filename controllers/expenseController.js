@@ -9,7 +9,7 @@ const expenseController = {
                 user_id: req.user.id,
                 amount,
                 description,
-                category,
+                category: category.toLowerCase(),
                 recurring,
                 recurrenceInterval,
                 nextRecurrenceDate: recurring ? calculateNextRecurrenceDate(recurrenceInterval) : null
@@ -27,31 +27,22 @@ const expenseController = {
             const expenses = await Expense.aggregate([
                 {
                     $match: { user_id: new mongoose.Types.ObjectId(req.user.id) }
-                }, 
-                {
-                    $lookup: {
-                      from: "categories",
-                      localField: "category",
-                      foreignField: "_id",
-                      as: "Category",
-                    },
-                },
-                {
-                    $unwind: "$Category"
                 },
                 {
                     $group: {
                         _id: null,
                         totalAmount: { $sum: "$amount" },
                         totalCount: { $sum: 1 },
-                        expenses: { $push: {
-                            _id: "$_id",
-                            title: "$title",
-                            description: "$description",
-                            category: "$Category.name",  // Get only the category name
-                            amount: "$amount",
-                            date: "$date"
-                        }}
+                        expenses: {
+                            $push: {
+                                _id: "$_id",
+                                title: "$title",
+                                description: "$description",
+                                category: "$category",  // Get only the category name
+                                amount: "$amount",
+                                date: "$date"
+                            }
+                        }
                     }
                 },
                 {
@@ -62,13 +53,13 @@ const expenseController = {
                         expenses: 1
                     }
                 },
-                { 
-                    $sort: { "date": -1 } 
+                {
+                    $sort: { "date": -1 }
                 },
 
             ])
-            if (!expenses) {
-                return res.status(404).json({ message: 'Expense not found' });
+            if (!expenses.length) {
+                return res.status(200).json({ message: 'You have no recorded expenses', data: { totalAmount: 0, totalCount: 0, expenses: [] } });
             }
             const result = expenses.length ? expenses[0] : { totalAmount: 0, totalCount: 0, expenses: [] };
             res.status(200).json({ message: 'All expenses fetched successfully', data: result });
@@ -77,27 +68,19 @@ const expenseController = {
         }
     },
 
-    async getSingleExpense(req, res){
+    async getSingleExpense(req, res) {
         try {
             const expense_id = req.params.id
             const expense = await Expense.aggregate([
                 {
                     $match: { _id: new mongoose.Types.ObjectId(expense_id) }
-                }, 
-                {
-                    $lookup: {
-                      from: "categories",
-                      localField: "category",
-                      foreignField: "_id",
-                      as: "Category",
-                    },
                 },
                 {
                     $project: {
                         _id: 1,
                         title: 1,
                         description: 1,
-                        category: "$Category.name",  // Get only the category name
+                        category: "$category",  // Get only the category name
                         amount: 1,
                         date: 1
                     }
@@ -116,10 +99,31 @@ const expenseController = {
     async updateExpense(req, res) {
         try {
             const { id } = req.params;
-            const expense = await Expense.findByIdAndUpdate(id, req.body, { new: true });
+            const { amount, description, category, recurring, recurrenceInterval } = req.body;
+
+            // Find the expense by ID first
+            const expense = await Expense.findById(id);
+
+            // Check if the expense exists
             if (!expense) {
                 return res.status(404).json({ message: 'Expense not found' });
             }
+
+            // Ensure the user is authorized to update this expense
+            if (expense.user_id.toString() !== req.user.id.toString()) {
+                return res.status(403).json({ message: 'Unauthorized: You cannot update this expense' });
+            }
+
+            // Update the details
+            expense.amount = amount || expense.amount;
+            expense.description = description || expense.description;
+            expense.category = category ? category.toLowerCase() : expense.category;
+            expense.recurring = recurring !== undefined ? recurring : expense.recurring;
+
+            // Update other fields if needed (e.g., recurrenceInterval)
+
+            await expense.save();
+
             res.status(200).json({ message: 'Expense updated successfully', data: expense });
         } catch (error) {
             res.status(500).json({ message: error.message });
@@ -129,15 +133,29 @@ const expenseController = {
     async deleteExpense(req, res) {
         try {
             const { id } = req.params;
-            const expense = await Expense.findByIdAndDelete(id);
+
+            // Find the expense by ID first
+            const expense = await Expense.findById(id);
+
+            // Check if the expense exists
             if (!expense) {
                 return res.status(404).json({ message: 'Expense not found' });
             }
+
+            // Ensure the user is authorized to delete this expense
+            if (expense.user_id.toString() !== req.user.id.toString()) {
+                return res.status(403).json({ message: 'Unauthorized: You cannot delete this expense' });
+            }
+
+            // Delete the expense
+            await expense.remove();
+
             res.status(200).json({ message: 'Expense deleted successfully' });
         } catch (error) {
             res.status(500).json({ message: error.message });
         }
     }
+
 };
 
 function calculateNextRecurrenceDate(interval) {
