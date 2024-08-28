@@ -31,12 +31,12 @@ app.use(express.json())
 
 app.use( compression() );
 
-app.use(session({
-    secret: process.env.SESSION_SECRET, // Use a secret from your environment variables
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false } // Set to true if using HTTPS
-}));
+// app.use(session({
+//     secret: process.env.SESSION_SECRET, // Use a secret from your environment variables
+//     resave: false,
+//     saveUninitialized: true,
+//     cookie: { secure: false } // Set to true if using HTTPS
+// }));
 // app.use(
 //     session({
 //         secret: "LoginRadius",
@@ -54,7 +54,7 @@ app.use('/api/expenses', expenseRoutes);
 // app.use('/api/categories', categoryRoutes);
 
 app.use((req, res) => {
-    res.status(404).json({message: "Please Login"})
+    res.status(404).json({message: "Page Not Found"})
  });
 app.listen(PORT, () =>{
     console.log(`Server running on port ${PORT}`)
