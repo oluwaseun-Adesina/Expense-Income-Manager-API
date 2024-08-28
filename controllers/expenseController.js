@@ -4,8 +4,9 @@ const mongoose = require('mongoose')
 const expenseController = {
     async createExpense(req, res) {
         try {
-            const { amount, description, category, recurring, recurrenceInterval } = req.body;
+            const { title, amount, description, category, recurring, recurrenceInterval } = req.body;
             const expense = new Expense({
+                title,
                 user_id: req.user.id,
                 amount,
                 description,
@@ -71,27 +72,14 @@ const expenseController = {
     async getSingleExpense(req, res) {
         try {
             const expense_id = req.params.id
-            const expense = await Expense.aggregate([
-                {
-                    $match: { _id: new mongoose.Types.ObjectId(expense_id) }
-                },
-                {
-                    $project: {
-                        _id: 1,
-                        title: 1,
-                        description: 1,
-                        category: "$category",  // Get only the category name
-                        amount: 1,
-                        date: 1
-                    }
-                },
-            ])
 
-            if (!expense.length) {
+            const expense = await Expense.findById(expense_id)
+
+            if (!expense) {
                 return res.status(404).json({ message: 'Expense not found' });
             }
 
-            res.status(200).json({ message: 'All expenses fetched successfully', data: expense });
+            res.status(200).json({ message: 'Expense fetched successfully', data: expense });
         } catch (error) {
             res.status(500).json({ message: error.message });
         }
@@ -99,7 +87,7 @@ const expenseController = {
     async updateExpense(req, res) {
         try {
             const { id } = req.params;
-            const { amount, description, category, recurring, recurrenceInterval } = req.body;
+            const { title, amount, description, category, recurring, recurrenceInterval } = req.body;
 
             // Find the expense by ID first
             const expense = await Expense.findById(id);
@@ -115,6 +103,7 @@ const expenseController = {
             }
 
             // Update the details
+            expense.title = title || expense.title;
             expense.amount = amount || expense.amount;
             expense.description = description || expense.description;
             expense.category = category ? category.toLowerCase() : expense.category;

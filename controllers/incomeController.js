@@ -69,6 +69,22 @@ const incomeController = {
         }
     },
 
+    async getSingleIncome(req, res) {
+        try {
+            const income_id = req.params.id
+
+            const income = await Income.findById(income_id)
+
+            if (!income) {
+                return res.status(404).json({ message: 'Income not found' });
+            }
+
+            res.status(200).json({ message: 'Income fetched successfully', data: income });
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    },
+
     async updateIncome(req, res) {
         try {
             const { id } = req.params;
@@ -81,7 +97,9 @@ const incomeController = {
                 return res.status(404).json({ message: 'Income not found' })
             }
 
-            if (Expense.user_id.toString() !== req.user.id.toString()) {
+
+
+            if (income.user_id.toString() !== req.user.id.toString()) {
                 return res.status(403).json({ message: 'Unauthorized: You cannot update this expense' })
             }
 
@@ -110,11 +128,11 @@ const incomeController = {
                 return res.status(404).json({ message: 'Income not found' })
             }
 
-            if (Expense.user_id.toString() !== req.user.id.toString()) {
+            if (income.user_id.toString() !== req.user.id.toString()) {
                 return res.status(403).json({ message: 'Unauthorized: You cannot update this expense' })
             }
 
-            await income.remove()
+            await income.deleteOne({ _id: income._id })
 
             res.status(200).json({ message: 'Income deleted successfully' });
         } catch (error) {

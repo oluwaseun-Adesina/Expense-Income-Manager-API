@@ -21,7 +21,7 @@ const incomeSchema = new mongoose.Schema({
     },
     category:{
         type: String,
-        enum: ['food','transportation','housing','utilities','entertainment','healthcare','insurance','savings','debt-repayment','miscellaneous'],
+        enum:  ['salary', 'freelance', 'dividends', 'investments','rental-income','gifts','other-income'],
         required: true
     },
     recurring:{

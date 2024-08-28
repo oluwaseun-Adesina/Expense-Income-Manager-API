@@ -26,14 +26,14 @@ const expenseSchema = new mongoose.Schema({
     },
     category: {
         type: String,
-        enum: ['salary', 'freelance', 'dividends', 'investments','rental-income','gifts','other-income'],
+        enum: ['food','transportation','housing','utilities','entertainment','healthcare','insurance','savings','debt-repayment','miscellaneous'],
         required: true
     },
     recurring: {
         type: Boolean,
         default: false
     },
-    recurringInterval: {
+    recurrenceInterval: {
         type: String,
         enum: ['daily', 'weekly', 'monthly', 'yearly'],
         required: function() {return this.recurring}

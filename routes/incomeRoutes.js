@@ -15,7 +15,8 @@ const validate = (schema) => (req, res, next) => {
 
 router.post('/', authenticateJWT, validate(incomeSchema), incomeController.createIncome);
 router.get('/', authenticateJWT, incomeController.getIncomes);
-router.put('/:id', authenticateJWT, validate(incomeSchema), incomeController.updateIncome);
+router.get('/:id', authenticateJWT, incomeController.getSingleIncome);
+router.patch('/:id', authenticateJWT, validate(incomeSchema), incomeController.updateIncome);
 router.delete('/:id', authenticateJWT, incomeController.deleteIncome);
 
 module.exports = router;
