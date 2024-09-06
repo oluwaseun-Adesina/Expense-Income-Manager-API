@@ -20,6 +20,7 @@ const compression = require('compression')
 const connectDB = require('./config/mongodb')
 connectDB()
 // compression
+handleRecurrence()
 
 // async function redisClient(){
 //     await connectRedis()
